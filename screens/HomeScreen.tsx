@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { useLocation } from "../context/LocationContext";
 import RestaurantCard from "../components/RestaurantCard";
 import { RESTAURANTS } from "../data/restaurants";
+import FloatingCartBar from "@/components/FloatingCartBar";
 
 // ...existing code...
 export default function Home() {
@@ -58,6 +59,7 @@ export default function Home() {
       >
         <Text style={{ color: "white", fontWeight: "700" }}>Open Map</Text>
       </TouchableOpacity>
+      <FloatingCartBar />
     </SafeAreaView>
   );
 }
