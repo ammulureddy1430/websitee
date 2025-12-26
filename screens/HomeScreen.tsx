@@ -18,34 +18,29 @@ export default function Home() {
   const router = useRouter();
   const { location } = useLocation();
 
-  // 🔑 TOAST STATE (GLOBAL)
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {/* HEADER */}
       <Header
         title="Uber Eats"
         showLocation
-        address={location?.address}
         onPressLocation={() => router.push("/map")}
       />
 
-      {/* TITLE */}
       <View style={{ padding: 20 }}>
         <Text style={{ fontSize: 20, fontWeight: "600" }}>
           Nearby Restaurants
         </Text>
       </View>
 
-      {/* RESTAURANT LIST */}
       <FlatList
         data={RESTAURANTS}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{
           paddingHorizontal: 12,
-          paddingBottom: 160, // space for cart bar + toast
+          paddingBottom: 160, 
         }}
         renderItem={({ item }) => (
           <RestaurantCard
@@ -59,7 +54,6 @@ export default function Home() {
         )}
       />
 
-      {/* OPEN MAP BUTTON */}
       <TouchableOpacity
         onPress={() => router.push("/map")}
         style={{
@@ -78,10 +72,8 @@ export default function Home() {
         </Text>
       </TouchableOpacity>
 
-      {/* FLOATING CART BAR */}
       <FloatingCartBar />
 
-      {/* 🔔 GLOBAL TOAST (BOTTOM OF SCREEN) */}
       <Toast
         visible={toastVisible}
         message={toastMsg}

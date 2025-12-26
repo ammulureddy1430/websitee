@@ -1,71 +1,82 @@
-import React, { createContext, useContext, useState } from "react";
-import { MenuItemType } from "../types";
+// ...existing code...
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-interface CartEntry {
-  item: MenuItemType;
-  qty: number;
-}
+type CartItem = { item: any; qty: number };
+type Cart = { items: Record<string, CartItem>; total: number };
 
-interface CartType {
-  total: number;
-  items: Record<string, CartEntry>;
-}
+const CART_KEY = "uber_cart_v1";
 
-interface CartContextType {
-  cart: CartType;
-  add: (item: MenuItemType) => void;
+const CartContext = createContext<{
+  cart: Cart;
+  add: (item: any) => void;
   remove: (id: string) => void;
   clearCart: () => void;
-}
-
-const defaultCart: CartType = { items: {}, total: 0 };
-
-const CartContext = createContext<CartContextType>({
-  cart: defaultCart,
-  add: () => {},
-  remove: () => {},
-  clearCart: () => {},
-});
+} | null>(null);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cart, setCart] = useState<CartType>(defaultCart);
+  const [cart, setCart] = useState<Cart>({ items: {}, total: 0 });
+  const [loaded, setLoaded] = useState(false);
 
-  const add = (item: MenuItemType) => {
+  useEffect(() => {
+    let mounted = true;
+    AsyncStorage.getItem(CART_KEY)
+      .then((s) => {
+        if (!mounted) return;
+        if (s) {
+          try {
+            const parsed = JSON.parse(s) as Cart;
+            setCart(parsed);
+          } catch (e) {
+            console.warn("Failed to parse cart from storage", e);
+          }
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoaded(true);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
+    AsyncStorage.setItem(CART_KEY, JSON.stringify(cart)).catch((e) =>
+      console.warn("Failed to save cart", e)
+    );
+  }, [cart, loaded]);
+
+  const recalcTotal = useCallback((items: Record<string, CartItem>) => {
+    return Object.values(items).reduce((s, e) => s + (e.item?.price ?? 0) * e.qty, 0);
+  }, []);
+
+  const add = useCallback((item: any) => {
     setCart((prev) => {
-      const existing = prev.items[item.id];
-      return {
-        total: prev.total + (item.price ?? 0),
-        items: {
-          ...prev.items,
-          [item.id]: {
-            item,
-            qty: existing ? existing.qty + 1 : 1,
-          },
-        },
-      };
+      const items = { ...prev.items };
+      const existing = items[item.id];
+      if (existing) existing.qty += 1;
+      else items[item.id] = { item, qty: 1 };
+      const total = recalcTotal(items);
+      return { items, total };
     });
-  };
+  }, [recalcTotal]);
 
-  const remove = (id: string) => {
+  const remove = useCallback((id: string) => {
     setCart((prev) => {
-      const existing = prev.items[id];
+      const items = { ...prev.items };
+      const existing = items[id];
       if (!existing) return prev;
-
-      const newQty = existing.qty - 1;
-      const newItems = { ...prev.items };
-
-      if (newQty <= 0) delete newItems[id];
-      else newItems[id] = { ...existing, qty: newQty };
-
-      const itemPrice = existing.item.price ?? 0;
-      return {
-        total: Math.max(0, prev.total - itemPrice),
-        items: newItems,
-      };
+      existing.qty -= 1;
+      if (existing.qty <= 0) delete items[id];
+      const total = recalcTotal(items);
+      return { items, total };
     });
-  };
+  }, [recalcTotal]);
 
-  const clearCart = () => setCart(defaultCart);
+  const clearCart = useCallback(() => {
+    setCart({ items: {}, total: 0 });
+  }, []);
 
   return (
     <CartContext.Provider value={{ cart, add, remove, clearCart }}>
@@ -74,4 +85,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
+};
