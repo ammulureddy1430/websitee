@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function TabsLayout() {
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
@@ -25,6 +25,16 @@ export default function TabsLayout() {
           title: "Search",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="saved"
+        options={{
+          title: "Saved",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="bookmark" size={size} color={color} />
           ),
         }}
       />

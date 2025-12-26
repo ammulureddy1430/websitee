@@ -5,31 +5,37 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 14,
     marginBottom: 16,
-    overflow: "hidden", // 🔑 clips image corners
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
+    overflow: "hidden",
     elevation: 3,
   },
-
+  imageWrapper: {
+    position: "relative",
+  },
   image: {
     width: "100%",
-    height: 160,          // 🔑 consistent height
-    backgroundColor: "#eee",
+    height: 160,
   },
-
+  bookmarkBtn: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+  },
   infoBox: {
     padding: 12,
   },
-
   title: {
     fontSize: 18,
     fontWeight: "700",
   },
-
   sub: {
     marginTop: 4,
     color: "#666",
-    fontSize: 14,
   },
 });
