@@ -1,6 +1,7 @@
 import { ImageSourcePropType } from "react-native";
 
 export interface MenuItemType {
+  isVeg: boolean | undefined;
   id: string;
   name: string;
   desc: string;
@@ -13,6 +14,7 @@ export interface Coordinates {
 }
 
 export interface Restaurant {
+  isVeg: boolean | undefined;
   id: string;
   name: string;
   rating: number;
