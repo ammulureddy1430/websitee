@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { useRouter } from "expo-router";
-import { useLocation } from "../../context/LocationContext";
+import { useLocation } from "@/context/LocationContext";
 
 const GOOGLE_KEY = "YOUR_GOOGLE_API_KEY";
 
